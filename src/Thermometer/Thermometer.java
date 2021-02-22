@@ -1,6 +1,6 @@
-package temperature.external;
+package Thermometer;
 
-import temperature.mediator.TemperatureModel;
+import model.TemperatureModel;
 
 public class Thermometer implements Runnable
 {

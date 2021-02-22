@@ -1,3 +1,5 @@
+package Radiator;
+
 public interface RadiatorState
 {
   public void turnUp(Radiator radiator);

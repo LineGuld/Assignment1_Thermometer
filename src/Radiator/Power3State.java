@@ -1,3 +1,5 @@
+package Radiator;
+
 public class Power3State implements RadiatorState
 {
   private static final int POWER = 3;

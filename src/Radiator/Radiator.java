@@ -1,3 +1,5 @@
+package Radiator;
+
 public class Radiator
 {
   private RadiatorState currentState = new OffState();

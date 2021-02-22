@@ -2,49 +2,51 @@ package Thermometer;
 
 import model.TemperatureModel;
 
-public class Thermometer implements Runnable
-{
-  private String id;
-  private double t;
-  private int d;
+public class Thermometer implements Runnable {
   private TemperatureModel model;
+  private String id;
+  private double temperature;
+  private int distanceFromHeater;
+  private int heatingPower;
+  private int timeSinceLastMeasure;
+  private double outdoorTemperature;
 
-  public Thermometer(String id, double t, int d, TemperatureModel model)
-  {
-    this.id = id;
-    this.t = t;
-    this.d = d;
+  public Thermometer(TemperatureModel model, String id, double temperature, int distanceFromHeater, int timeSinceLastMeasure, double outdoorTemperature) {
     this.model = model;
+    this.id = id;
+    this.temperature = temperature;
+    this.distanceFromHeater = distanceFromHeater;
+    this.timeSinceLastMeasure = timeSinceLastMeasure;
+    this.outdoorTemperature = outdoorTemperature; // Default til Konstant Temperatur
+    heatingPower = 0; // Reference til Radiators Power (Muligt reference til selve radiatoren)
   }
 
-  private double temperature(double t, int p, int d, double t0, int s)
-  {
-    double tMax = Math.min(11 * p + 10, 11 * p + 10 + t0);
-    tMax = Math.max(Math.max(t, tMax), t0);
+  public void setDistanceFromHeater(int distanceFromHeater) {
+    this.distanceFromHeater = distanceFromHeater;
+  }
+
+  public double temperature(int heatingPower, double outdoorTemperature) {
+    double tMax = Math.min(11 * heatingPower + 10, 11 * heatingPower + 10 + outdoorTemperature);
+    tMax = Math.max(Math.max(temperature, tMax), outdoorTemperature);
     double heaterTerm = 0;
-    if (p > 0)
-    {
-      double den = Math.max((tMax * (20 - 5 * p) * (d + 5)), 0.1);
-      heaterTerm = 30 * s * Math.abs(tMax - t) / den;
+    if (heatingPower > 0) {
+      double den = Math.max((tMax * (20 - 5 * heatingPower) * (distanceFromHeater + 5)), 0.1);
+      heaterTerm = 30 * timeSinceLastMeasure * Math.abs(tMax - temperature) / den;
     }
-    double outdoorTerm = (t - t0) * s / 250.0;
-    t = Math.min(Math.max(t - outdoorTerm + heaterTerm, t0), tMax);
-    return t;
+    double outdoorTerm = (temperature - outdoorTemperature) * timeSinceLastMeasure / 250.0;
+    temperature = Math.min(Math.max(temperature - outdoorTerm + heaterTerm, outdoorTemperature), tMax);
+    return temperature;
   }
 
-  @Override public void run()
-  {
-    while (true)
-    {
-      this.t = temperature(t, 2, d, 0, 6);
-      System.out.println(id + " " + t);
-      model.addTemperature(id, t);
-      try
-      {
-        Thread.sleep(6000);
-      }
-      catch (InterruptedException e)
-      {
+  @Override
+  public void run() {
+    while (true) {
+      // radiator.getHeatingPower();
+      temperature = temperature(heatingPower, outdoorTemperature);
+      model.addTemperature(id, temperature);
+      try {
+        Thread.sleep(timeSinceLastMeasure * 1000);
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }

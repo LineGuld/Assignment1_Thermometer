@@ -21,6 +21,7 @@ public class Radiator
 
   void setCurrentState(RadiatorState state)
   {
+    //TODO: FirePropertyEvent("State", old state, new state)
     currentState = state;
   }
 }
